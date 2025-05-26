@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+
+
+  {% block title %}
+  Search result | Metronic Shop UI
+  {% endblock title %}
+
+<!-- Body BEGIN -->
+{% block body %}
+{% load static %}
+{% load filters %}
+
+    <div class="main">
+      <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="">Store</a></li>
+            <li class="active">Search result</li>
+        </ul>
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-40">
+          <!-- BEGIN SIDEBAR -->
+          <div class="sidebar col-md-3 col-sm-5">
+            <div class="sidebar-filter margin-bottom-25">
+              <h2>Search categories</h2>
+              <h3>Availability</h3>
+              <div class="checkbox-list">
+                <label><input name="newbox" id="newbox" type="checkbox"> New</label>
+                <label><input name="salebox" id="salebox" type="checkbox"> Sale</label>
+              </div>
+
+              <h3>Price</h3>
+              <p>
+                <label for="amount">Range:</label>
+                <input readonly='true' name="slider" type="text" id="amount"
+                  style="border:0; color:#f6931f; font-weight:bold;">
+              </p>
+              <div id="slider-range" data-min="0" data-max="500"></div>
+            </div>
+
+            <div class="sidebar-products clearfix">
+              <h2>Bestsellers</h2>
+
+              {% for item in c_items  %}
+              <div class="item">
+                <a href="{% url 'item' id=item.product.id %}"><img src={{item.product.imageURL}} alt="Some Shoes in Animal with Cut Out"></a>
+                <h3><a href="{% url 'item' id=item.product.id %}">{{item.product.name}}</a></h3>
+                <div class="price">${{item.product.price}}</div>
+              </div>
+              {% endfor %}
+            
+            </div>
+          </div>
+          <!-- END SIDEBAR -->
+
+          <!-- BEGIN CONTENT -->
+          <div class="col-md-9 col-sm-7">
+            <div class="content-search margin-bottom-20">
+              <div class="row">
+                <div class="col-md-6">
+                  {% with products|length as plength %}
+                  <h1 id="searchedFor" class="searchedFor"><em>{{plength}}</em>: Search Results found for <em>{{message}}</em></h1>
+                  {% endwith %}
+                </div>
+                <div class="col-md-6">
+                  <form method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                      <input id="searchBox" name="searchBox" type="text" value="{{message}}" placeholder="Search" class="form-control">
+                      <span class="input-group-btn">
+                        <button id="search" class="btn btn-primary" type="submit">Search</button>
+                      </span>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="row list-view-sorting clearfix">
+              <div class="col-md-2 col-sm-2 list-view">
+                <a href="javascript:;"><i class="fa fa-th-large"></i></a>
+                <a href="javascript:;"><i class="fa fa-th-list"></i></a>
+              </div>
+              <div class="col-md-10 col-sm-10">
+                <div class="pull-right">
+                  <label class="control-label">Show:</label>
+                  <select class="selectOption selectItemNo" id="showNo" class="form-control input-sm">
+                    <option value="#?limit=24">2</option>
+                    <option value="#?limit=25">5</option>
+                    <option value="#?limit=50" selected="selected">10</option>
+                    <option value="#?limit=75">15</option>
+                    <option value="#?limit=100">20</option>
+                  </select>
+                </div>
+                <div class="pull-right">
+                  <label class="control-label">Sort&nbsp;By:</label>
+                  <select class="selectOption selectOrder" id="mySelect" class="form-control input-sm">
+                    <option value="#?sort=p.sort_order&amp;order=ASC" selected="selected">Default</option>
+                    <option value="#?sort=pd.name&amp;order=ASC">Name (A - Z)</option>
+                    <option value="#?sort=pd.name&amp;order=DESC">Name (Z - A)</option>
+                    <option value="#?sort=p.price&amp;order=ASC">Price (Low &gt; High)</option>
+                    <option value="#?sort=p.price&amp;order=DESC">Price (High &gt; Low)</option>
+                    <option value="#?sort=rating&amp;order=DESC">Rating (Highest)</option>
+                    <option value="#?sort=rating&amp;order=ASC">Rating (Lowest)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {% with message|length as mlength %}
+            {% if mlength < 4 %}
+              <h4>Please Enter a Valid Seach Query</h4>
+            {% endif %}
+
+                {% with products|length as plength %}
+                  {% if plength == 0 and mlength > 4 %}
+                    <h4>NO ITEMS FOUND</h4>
+                  {% endif %}
+                {% endwith %}
+            {% endwith %}
+
+              <!-- BEGIN PRODUCT LIST -->
+              <div class="row product-list products-filter">
+
+                {% for product in products|slice:":10"  %}
+                {% if forloop.counter0|mod:3 %}
+                <div class="row product-list"></div>
+                {% endif %}
+                <!-- PRODUCT ITEM START -->
+                <div class="col-md-4 col-sm-6 col-xs-12">
+                  <div class="product-item">
+                    <div class="pi-img-wrapper">
+                      <img id="image{{product.id}}" src="{{product.imageURL}}" class="img-responsive" alt="{{product.name}}">
+                      <div>
+                        <a href="{{product.imageURL}}" class="btn btn-default fancybox-button">Zoom</a>
+                        <a href="#{{product.id}}pop-up" class="btn btn-default fancybox-fast-view">View</a>
+                      </div>
+                    </div>
+                    <h3><a id="name{{product.id}}" href="{% url 'item' id=product.id %}">{{product.name}}</a></h3>
+                    <div class="pi-price">$<span id="price{{product.id}}">{{product.price}}</span></div>
+                    <a data-id={{product.id}} data-action="add" href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+                    {% if product.sale %}
+                    <div class="sticker sticker-sale"></div>
+                    {% endif %}
+                    {% if product.new %}
+                    <div class="sticker sticker-new"></div> 
+                    {% endif %}
+                  </div>
+                </div>
+                <!-- PRODUCT ITEM END -->
+                {% endfor %}
+              </div>
+
+            <!-- BEGIN PAGINATOR -->
+            <div class="row">
+              <div class="col-md-4 col-sm-4 items-info" id="pageOfTotal">Page <span id="currentPage">{{items.number}}</span>  of Total <span id="totalPages">{{items.paginator.num_pages}}</span></div>
+              <div class="col-md-8 col-sm-8">
+                <ul class="pagination pull-right">
+                  <li><a href="javascript:;">&laquo;</a></li>
+                  {% for i in items.paginator.page_range %}
+                  {% if items.number == i %}
+                  <li class="page" id="page{{i}}"><span>{{i}}</span></li>
+                  
+                  {% else %}
+                  <li class="page" id="page{{i}}"><a>{{i}}</a></li>
+                  {% endif %}
+                  {% endfor %}
+                  <li><a href="javascript:;">&raquo;</a></li>
+                </ul>
+              </div>
+            </div>
+            <!-- END PAGINATOR -->
+          </div>
+          <!-- END CONTENT -->
+        </div>
+        <!-- END SIDEBAR & CONTENT -->
+      </div>
+    </div>
+
+
+
+  
+{% endblock body %}
+
+
+    {% block js %}
+  
+<script>
+  $(function () {
+    // Initialize the slider
+    $("#slider-range").slider({
+      range: true,
+      min: 0,
+      max: 500,
+      values: [0, 500], // initial values
+      slide: function (event, ui) {
+        // Update the text input with the current values
+        $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+      }
+    });
+
+    // Set the initial values in the text input
+    $("#amount").val("$0 - $500")
+  });
+</script>
+    <!-- END PAGE LEVEL JAVASCRIPTS -->
+{% endblock js %}
+<!-- END BODY -->

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} SIGNUP {% endblock title %}
+
+
+{% block css %}
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock css %}
+
+{% block body %}
+<div class="wrapper margin-bottom-20">
+    <div class="title-text">
+      <div class="title signup">Signup Form</div>
+    </div>
+    <div class="form-container">
+      <div class="slide-controls">
+        <div class="slider-tab"></div>
+      </div>
+      </div>
+      <div class="form-inner">
+        <form method="post" class="signup">
+          {% csrf_token %}
+          <div class="field">
+            <input id="username" name="S_username" type="username" placeholder="Username" required>
+          </div>
+          <div class="field">
+            <input id="email" name="email" type="email" placeholder="Email Address" required>
+          </div>
+          <div class="field">
+            <input id="password" name="s_password" type="password" placeholder="Password" required>
+          </div>
+          <div class="field">
+            <input id="confirm-password" name="c_password" type="password" placeholder="Confirm password" required>
+          </div>
+          <div class="field btn">
+            <div class="btn-layer"></div>
+            <input type="submit" value="Signup">
+          </div>
+          <div class="signup-link">Already Have an account? <a href="{% url 'login'%}">Login</a></div>
+        </form>
+      </div>
+      {% for message in messages %}
+      <h5 class="message text-center margin-top-10"> <strong>{{message}}</strong></h5>
+      {% endfor %}  
+    </div>
+  </div>
+{% endblock body %}
+

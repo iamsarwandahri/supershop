@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}
+Checkout | Metronic Shop UI
+{% endblock title %}
+
+<!-- Body BEGIN -->
+{% block body %}
+{% load filters %}
+{% load static %}
+
+<div class="main">
+  <div class="container">
+    <ul class="breadcrumb">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="">Store</a></li>
+      <li class="active">Checkout</li>
+    </ul>
+    <!-- BEGIN SIDEBAR & CONTENT -->
+    <div class="row margin-bottom-40">
+      <!-- BEGIN CONTENT -->
+      <div class="col-md-12 col-sm-12">
+        <h1>Checkout</h1>
+        <!-- BEGIN CHECKOUT PAGE -->
+        <div class="panel-group checkout-page accordion scrollable" id="checkout-page">
+
+          <!-- FORM -->
+          <form id="checkoutForm" method="POST" action="{% url 'checkout' %}">
+            {% csrf_token %}
+
+
+            <!-- BEGIN SHIPPING ADDRESS -->
+            <div id="shipping-address" class="panel panel-default">
+              <div class="panel-heading">
+                <h2 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#checkout-page" href="#shipping-address-content"
+                    class="accordion-toggle">
+                    Step 1: Delivery Details
+                  </a>
+                </h2>
+              </div>
+              <div id="shipping-address-content" class="panel-collapse collapse in">
+                <div class="panel-body row">
+                  <div class="col-md-6 col-sm-6">
+                    <div class="form-group">
+                      <label for="firstname-dd">First Name <span class="require">*</span></label>
+                      <input name="firstname" type="text" id="firstname" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="lastname-dd">Last Name <span class="require">*</span></label>
+                      <input name="lastname" type="text" id="lastname" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="email-dd">E-Mail <span class="require">*</span></label>
+                      <input name="email" type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="telephone-dd">Phone <span class="require">*</span></label>
+                      <input name="phone" type="tel" id="phone" class="form-control" required>
+                    </div>
+                    <div class="panel-body row">
+                      <div class="radio-list">
+                        <label>
+                          <input id="delivery-checkbox" name="cashOnDelivery" class="delivery-checkbox" type="checkbox">
+                          Cash On Delivery
+                        </label>
+                      </div>
+                      <div class="form-group">
+                        <label for="delivery-payment-method">Add Comments About Your Order</label>
+                        <textarea name="comments" id="comments" rows="8" class="form-control"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 col-sm-6">
+                    <div class="form-group">
+                      <label for="address-dd">Address</label>
+                      <input name="address" type="text" id="address" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="city-dd">City <span class="require">*</span></label>
+                      <input name="city" type="text" id="city" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="post-code-dd">Post Code <span class="require">*</span></label>
+                      <input name="post-code" type="text" id="post-code" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="state-dd">State <span class="require">*</span></label>
+                      <input name="state" type="text" id="state" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label for="country-dd">Country <span class="require">*</span></label>
+                      <select name="country" class="form-control input-sm" id="country" required>
+                        <option value=""> --- Please Select --- </option>
+                        {% for country in countries %}
+                        <option id="{{country.cody}}-dd" value="{{country.code}}">{{country.name}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="checkbox col-md-12 pull-right">
+                    <label>
+                      <input id="policy" type="checkbox" required> I have read and agree to the <a
+                        title="Terms & Conditions" href="{% url 'terms_conditions' %}">Terms & Conditions </a>
+                      &nbsp;&nbsp;&nbsp;
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- END SHIPPING ADDRESS -->
+
+            <!-- BEGIN CONFIRM -->
+            <div id="confirm" class="panel panel-default">
+              <div class="panel-heading">
+                <h2 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#checkout-page" href="#confirm-content"
+                    class="accordion-toggle">
+                    Step 2: Confirm Order
+                  </a>
+                </h2>
+              </div>
+              <div id="confirm-content" class="panel-collapse collapse">
+                <div class="panel-body row">
+                  <div class="col-md-12 clearfix">
+                    <div class="table-wrapper-responsive">
+                      <table id="checkout-table">
+                        <tr>
+                          <th class="checkout-image">Image</th>
+                          <th class="checkout-description">Description</th>
+                          <th class="checkout-model">Model</th>
+                          <th class="checkout-quantity">Quantity</th>
+                          <th class="checkout-price">Price</th>
+                          <th class="checkout-total">Total</th>
+                        </tr>
+                        {% for item in c_items %}
+                        <tr>
+                          <td class="checkout-image">
+                            <a href="javascript:;"><img src={{item.product.imageURL}} alt="Berry Lace Dress"></a>
+                          </td>
+                          <td class="checkout-description">
+                            <h3><a href="{% url 'item' id=item.product.id %}">{{item.product.name}}</a></h3>
+                            <p><strong>Item {{forloop.counter}}</strong> - Color: Green; Size: S</p>
+                            <em>More info is here</em>
+                          </td>
+                          <td class="checkout-model">{{item.product.reference}}</td>
+                          <td class="checkout-quantity">{{item.quantity}}</td>
+                          <td class="checkout-price"><strong><span>$</span>{{item.product.price}}</strong></td>
+                          <td class="checkout-total"><strong><span>$</span>{{item.total_price}}</strong></td>
+                        </tr>
+                        {% endfor %}
+                      </table>
+                    </div>
+                    <div class="checkout-total-block">
+                      <ul>
+                        <li>
+                          <em>Sub total</em>
+                          <strong id="checkout-sub-total" class="price"><span>$</span>{{c_total_price}}</strong>
+                        </li>
+                        <li>
+                          <em>Shipping cost</em>
+                          <strong class="price"><span>$</span>3.00</strong>
+                        </li>
+                        <li>
+                          <em>Eco Tax (-2.00)</em>
+                          <strong class="price"><span>$</span>2.00</strong>
+                        </li>
+                        <li class="checkout-total-price">
+                          <em>Total</em>
+                          <strong id="checkout-total"
+                            class="price"><span>$</span>{{c_total_price|addfloat:5.00}}</strong>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    {% with c_items|length as length %}
+                    {% if length > 0 %}
+                    <div>
+                      <button class="btn btn-primary pull-right button-order" type="submit" id="button-confirm">Confirm
+                        Order</button>
+                    </div>
+                    <!-- <button type="button" class="btn btn-default pull-right margin-right-20" id="button-cancel">Cancel</button> -->
+                    <div id="paypal-button-container"
+                      class="button-paypal pull-right margin-top-10 margin-right-10 hidden"></div>
+                    {% else %}
+                    <div>
+                      <button class="btn btn-primary pull-right button-order hidden" type="submit"
+                        id="button-confirm">Confirm Order</button>
+                    </div>
+                    <!-- <button type="button" class="btn btn-default pull-right margin-right-20" id="button-cancel">Cancel</button> -->
+                    <div id="paypal-button-container"
+                      class="button-paypal pull-right margin-top-10 margin-right-10 hidden"></div>
+                    {% endif %}
+
+                    {% endwith %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- END CONFIRM -->
+
+          </form>
+          <!-- END FORM -->
+
+        </div>
+        <!-- END CHECKOUT PAGE -->
+      </div>
+      <!-- END CONTENT -->
+    </div>
+    <!-- END SIDEBAR & CONTENT -->
+  </div>
+</div>
+
+
+{% endblock body %}
+
+
+{% block js %}
+
+<script
+  src="https://www.paypal.com/sdk/js?client-id=AXaaQRe8HHm8b2jXZyX-IZOCLg4t9pN0USrkmteJaR0u7Xw1VfikIbkzWMZHko1OLxwmYktX0HGLgfLw&currency=USD&disable-funding=credit,venmo"></script>
+<script>
+
+  var total = "{{c_total_price|addfloat:5.00}}"
+  total = parseFloat(total).toFixed(2)
+
+
+  paypal.Buttons({
+    style: {
+      color: 'blue',
+      shape: 'pill',
+      label: 'pay',
+      height: 40,
+    },
+    createOrder: function (data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            currency_code: 'USD',
+            value: total,
+          },
+        }],
+      });
+    },
+    onApprove: function (data, actions) {
+      return actions.order.capture().then(function (details) {
+        console.log('Capture result', details, JSON.stringify(details, null, 2));
+        submitData()
+        var transaction = details.purchase_units[0].payments.captures[0];
+        //alert('Transaction ' + transaction.status + ': ' + transaction.id);
+      }).catch(function (error) {
+        console.error(error);
+        alert('Sorry, your transaction could not be processed.');
+      });
+    }
+  }).render('#paypal-button-container');
+
+
+  $(document).ready(function () {
+
+    var i = 1
+    for (var c in cart) {
+      id = cart[c]['id']
+      image = cart[c]['image']
+      quantity = cart[c]['qty']
+      product = cart[c]['name']
+      price = cart[c]['price'].toFixed(2)
+      total_price = (quantity * price).toFixed(2)
+
+      item = `<tr>
+      <td class="checkout-image">
+        <a href="javascript:;"><img src=${image} alt="Berry Lace Dress"></a>
+      </td>
+      <td class="checkout-description">
+        <h3><a href="/index/${id}/item">${product}</a></h3>
+        <p><strong>Item ${i}</strong> - Color: Green; Size: S</p>
+        <em>More info is here</em>
+      </td>
+      <td class="checkout-model">{{item.product.reference}}</td>
+      <td class="checkout-quantity">${quantity}</td>
+      <td class="checkout-price"><strong><span>$</span>${price}</strong></td>
+      <td class="checkout-total"><strong><span>$</span>${total_price}</strong></td>
+      </tr>`
+      $('#checkout-table').append(item)
+    }
+
+    var totalitems = 0
+    var cart_total_price = 0.0
+    for (var item in cart) {
+      totalitems += cart[item]['qty']
+      cart_total_price = (cart_total_price + (cart[item]['price'] * cart[item]['qty']))
+    }
+
+    checkout_sub_total = cart_total_price
+    checkout_total = checkout_sub_total + 5.0
+
+    $('#checkout-sub-total').html('$' + cart_total_price.toFixed(2))
+    $('#checkout-total').html('$' + checkout_total.toFixed(2))
+
+  })
+
+  if (Object.keys(cart).length) {
+    $('#button-confirm').removeClass('hidden')
+  }
+
+  $('#checkoutForm').submit(function (event) {
+    event.preventDefault()
+
+    value = $('#delivery-checkbox').is(':checked')
+
+    if (value == false) {
+      $('.button-paypal').removeClass('hidden')
+      $('#button-confirm').addClass('hidden')
+    }
+    else if (value == true) {
+      submitData()
+    }
+  })// Button
+
+
+  function submitData() {
+    var total = "{{c_total_price}}"
+    total = parseFloat(total)
+
+    var first_name = $('#firstname').val()
+    var last_name = $('#lastname').val()
+    var email = $('#email').val()
+    var phone = $('#phone').val()
+    var address = $('#address').val()
+    var city = $('#city').val()
+    var state = $('#state').val()
+    var country = $('#country').val()
+    var postal_code = $('#post-code').val()
+    var cashOnDelivery = $('#delivery-checkbox').is(':checked')
+    var desc = $('#comments').val()
+    var policy = $('#policy').is(':checked')
+
+    $.ajax({
+      type: 'POST',
+      url: '/checkout/',
+      data: JSON.stringify({
+        'first_name': first_name, 'last_name': last_name, 'email': email,
+        'phone': phone, 'address': address, 'city': city, 'state': state,
+        'country': country, 'postal_code': postal_code,
+        'cashOnDelivery': cashOnDelivery, 'desc': desc, 'total': total
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      success: function () {
+        function clearCookie(name) { document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; }
+        clearCookie('cart')
+        alert('Your order has been Placed Successfully! Thanks')
+        document.location = '/index/'
+      },
+
+    })//AJAX
+  }
+</script>
+{% endblock js %}

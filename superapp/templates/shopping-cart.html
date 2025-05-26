@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+<!-- Head BEGIN -->
+{% block title %}
+Shopping cart | Metronic Shop UI
+{% endblock title %}
+
+<!-- Body BEGIN -->
+{% block body %}
+{% load static %}
+{% load filters %}
+
+    <div class="main">
+      <div class="container">
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-40">
+          <!-- BEGIN CONTENT -->
+          <div class="col-md-12 col-sm-12">
+            <h1>Shopping cart</h1>
+            <div class="goods-page">
+              <div class="goods-data clearfix">
+                <div class="table-wrapper-responsive">
+                <table summary="Shopping cart" id="cart-table">
+                  <tr>
+                    <th class="goods-page-image">Image</th>
+                    <th class="goods-page-description">Description</th>
+                    <th class="goods-page-ref-no">Ref No</th>
+                    <th class="goods-page-quantity">Quantity</th>
+                    <th class="goods-page-price">Unit price</th>
+                    <th class="goods-page-total" colspan="2">Total</th>
+                  </tr>
+
+                  {% for item in c_items %}
+                  <tr id="shopping_cart_item_row{{item.product.id}}">
+                    <td class="goods-page-image">
+                      <a href="javascript:;"><img src={{item.product.imageURL}} alt="Berry Lace Dress"></a>
+                    </td>
+                    <td class="goods-page-description">
+                      <h3><a href='{% url "item" id=item.product.id %}'>{{item.product.name}}</a></h3>
+                      <p><strong>Item: {{forloop.counter}}</strong> - Color: Green; Size: S</p>
+                      <em>More info is here</em>
+                    </td> 
+                    <td class="goods-page-ref-no">
+                      {{item.product.reference}}
+                    </td>
+                    <td class="goods-page-quantity">
+                    <div class="product-quantity">
+                      <div class="input-group bootstrap-touchspin">
+                        <input id="shopping_cart_product_quantity{{item.product.id}}" type="text" value="{{item.quantity}}" readonly="" class="form-control" style="display: block;">
+                        <span class="input-group-btn">        
+                            <button data-id={{item.product.id}} data-action="remove" class="btn quantity-down bootstrap-touchspin-down add2cart" type="button">
+                                    <i class="fa fa-angle-down"></i>
+                                </button> </span>                    
+                        
+                                <span class="input-group-btn">
+                                <button data-id={{item.product.id}} data-action="add" class="btn quantity-up bootstrap-touchspin-up add2cart" type="button">
+                                    <i class="fa fa-angle-up"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    </td>
+                    <td class="goods-page-price">
+                      <strong id='shopping_cart_item_price{{item.product.id}}'><span>$</span>{{item.product.price}}</strong>
+                    </td>
+                    <td class="goods-page-total">
+                      <strong id='shopping_cart_item_total_price{{item.product.id}}'><span>$</span>{{item.total_price}}</strong>
+                    </td>
+                    <td class="del-goods-col">
+                      <a class="del-goods" href="javascript:;">&nbsp;</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </table>
+                </div>
+
+                <div class="shopping-total">
+                  <ul>
+                    <li>
+                      <em>Sub total</em>
+                      <strong id="shopping_cart_total_price" class="price"><span>$</span>{{c_total_price}}</strong>
+                    </li>
+                    <li>
+                      <em>Shipping cost</em>
+                      <strong class="price"><span>$</span>3.00</strong>
+                    </li>
+                    <li class="shopping-total-price">
+                      <em>Total</em>
+                      <strong id="shopping_cart_total_price_" class="price"><span>$</span>{{c_total_price|add:3|floatformat:2}}</strong>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <button id="shopping-button" class="btn btn-default" type="button">Continue shopping <i class="fa fa-shopping-cart"></i></button>
+              <button id="checkout-button" class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
+            </div>
+          </div>
+          <!-- END CONTENT -->
+        </div>
+        <!-- END SIDEBAR & CONTENT -->
+
+        <!-- BEGIN SIMILAR PRODUCTS -->
+        <div class="row margin-bottom-40">
+          <div class="col-md-12 col-sm-12">
+            <h2>Most popular products</h2>
+            <div class="owl-carousel owl-carousel4">
+
+              {% for product in all_products %}
+              <div>
+                <div class="product-item">
+                  <div class="pi-img-wrapper">
+                    <img id="image{{product.id}}" src={{product.imageURL}} class="img-responsive" alt="Berry Lace Dress">
+                    <div>
+                      <a href={{product.imageURL}} class="btn btn-default fancybox-button">Zoom</a>
+                      <a href="#{{product.id}}pop-up" class="btn btn-default fancybox-fast-view">View</a>
+                    </div>
+                  </div>
+                  <h3><a id="name{{product.id}}" href="shop-item.html">{{product.name}}</a></h3>
+                  <div class="pi-price">$ <span id="price{{product.id}}">{{product.price}}</span></div>
+                  <a data-id={{product.id}} data-action="add" id="{{product.id}}" href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+                  {% if product.new %}
+                  <div class="sticker sticker-new"></div>
+                  {% endif %}
+                  {% if product.sale %}
+                  <div class="sticker sticker-sale"></div>
+                  {% endif %}
+                </div>
+              </div>
+
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <!-- END SIMILAR PRODUCTS -->
+      </div>
+    </div>
+
+    {% endblock body %}
+<!-- END BODY -->
+
+{% block js %}
+
+  <script>
+    $(document).ready(function() {
+      $('#shopping-button').on('click', function() {
+        window.location.href = '/index/'    
+      });
+
+      $('#checkout-button').on('click', function() {
+            window.location.href = '/checkout/'
+      });
+
+      $(document).ready(function () {
+        var i = 1
+        for (var c in cart) {
+            id = cart[c]['id']
+            image = cart[c]['image']
+            quantity = cart[c]['qty']
+            product = cart[c]['name']
+            price = cart[c]['price'].toFixed(2)
+            total_price = (quantity * price).toFixed(2)
+    
+            item = `<tr id="shopping_cart_item_row${id}">
+            <td class="goods-page-image">
+              <a href="javascript:;"><img src=${image} alt="Berry Lace Dress"></a> </td>
+            <td class="goods-page-description">
+              <h3><a href='/index/${id}/item'>${product}</a></h3>
+              <p><strong>Item: ${i}</strong> - Color: Green; Size: S</p>
+              <em>More info is here</em>
+            </td> 
+            <td class="goods-page-ref-no">
+                {{all_products.id.reference}}
+            </td>
+            <td class="goods-page-quantity">
+    
+            <div class="product-quantity">
+              <div class="input-group bootstrap-touchspin">
+                <input id="shopping_cart_product_quantity${id}" type="text" value="${quantity}" readonly="" class="form-control" style="display: block;">
+                  
+                <span class="input-group-btn">        
+                    <button data-id=${id} data-action="remove" class="btn quantity-down bootstrap-touchspin-down add2cart" type="button">
+                            <i class="fa fa-angle-down"></i>
+                        </button> </span>                    
+                
+                        <span class="input-group-btn">
+                        <button data-id=${id} data-action="add" class="btn quantity-up bootstrap-touchspin-up add2cart" type="button">
+                            <i class="fa fa-angle-up"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            </td>
+            <td class="goods-page-price">
+              <strong id='shopping_cart_item_price${id}'><span>$</span>${price}</strong>
+            </td>
+            <td class="goods-page-total">
+              <strong id='shopping_cart_item_total_price${id}'><span>$</span>${total_price}</strong></td>
+              <td class="del-goods-col"><a class="del-goods" href="javascript:;">&nbsp;</a></td>
+          </tr>`
+            $('#cart-table').append(item)
+        }
+    
+        var totalitems = 0
+        var cart_total_price = 0.0
+        for (var item in cart) {
+            totalitems += cart[item]['qty']
+            cart_total_price = (cart_total_price + (cart[item]['price'] * cart[item]['qty']))
+        }
+    
+        cart_sub_total = cart_total_price
+        cart_total = cart_sub_total + 3.0
+    
+        $('#shopping_cart_total_price').html('$' + cart_sub_total.toFixed(2))
+        $('#shopping_cart_total_price_').html('$' + cart_total.toFixed(2))
+    
+    })
+
+
+
+  });
+  </script>
+{% endblock js %}
